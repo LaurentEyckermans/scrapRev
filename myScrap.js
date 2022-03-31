@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 
-const laurentScrap = async () => {
+const myScrap = async () => {
     let category 
     const browser = await puppeteer.launch({
         headless: false,
@@ -142,4 +142,4 @@ const laurentScrap = async () => {
     await browser.close();
 }
 
-laurentScrap()
+myScrap()
