@@ -2,16 +2,21 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 
 const laurentScrap = async () => {
-    let category 
+    let category
+
     const browser = await puppeteer.launch({
         headless: false,
         defaultViewport: false,
     });
+
     const page = await browser.newPage();
+
     let linksPerPages = []
+
     for (let r = 0; r < 2; r++) {
         let cardSelector = 1;
         let mySearch = ['pasta', 'risotto']
+
         switch (mySearch[r]) {
             case 'pasta':
                 category = 'pastaRisotto'
@@ -20,6 +25,7 @@ const laurentScrap = async () => {
                 category = 'pastaRisotto'
                 break
         }
+
         for (let i = 0; i < 2; i++) {
             await page.goto(
                 `https://www.hellofresh.com/recipes/search?q=${mySearch[r]}?page=${i}`
@@ -43,9 +49,19 @@ const laurentScrap = async () => {
             cardSelector += 8
         }
     }
+    
     console.log(linksPerPages)
 
-    let arraySelector = [['body', 'h1'], ['.dsjd', '.dsje'], [".fela-_1slhjvb", ".fela-_19qpnoj"], [".fela-_g6xips>div>", "p"], [".fela-_12sjl9r>div>", "p"], [".fela-_14dtxzo", "img"], ["div.fela-_1mq2bj0", "div.fela-_1qmjd6x >div"]]
+    let arraySelector = [
+        ['body', 'h1'],
+        ['.dsjd', '.dsje'],
+        [".fela-_1slhjvb", ".fela-_19qpnoj"],
+        [".fela-_g6xips>div>", "p"],
+        [".fela-_12sjl9r>div>", "p"],
+        [".fela-_14dtxzo", "img"],
+        ["div.fela-_1mq2bj0", "div.fela-_1qmjd6x >div"]
+    ]
+
     let arrayStoredRecipes = []
 
     const myScrap = async (parentSelct, childSelct, type) => {
@@ -80,6 +96,7 @@ const laurentScrap = async () => {
         } catch {
             console.log('****EndLoop')
             return myChildren
+            // mhh je sais pas si c'est clean code d'utiliser un catch pour stopper un for x)
         }
     }
 
@@ -114,10 +131,12 @@ const laurentScrap = async () => {
     }
 
     let recipeAdded = 0
-    for (let i = 0; i < linksPerPages.length; i++) {
-        for (let k = 0; k < linksPerPages[0].length; k++) {
-            if (linksPerPages[0][k].includes('/recipes/')) {
-                await page.goto(`${linksPerPages[0][k]}`)
+
+    linksPerPages.forEach(() =>
+
+        linksPerPages[0].forEach((link) => {
+            if (link.includes('/recipes/')) {
+                await page.goto(`${link}`)
                 let myRecipeObj = {}
                 myRecipeObj.scrapIdName = "hellofresh"
                 myRecipeObj.category = category
@@ -136,8 +155,9 @@ const laurentScrap = async () => {
                 console.clear()
                 console.log("recipeAdded: " + recipeAdded + " +/- 16")
             }
-        }
-    }
+        })
+    )
+
     fs.writeFileSync("recipeDataScraped.json", JSON.stringify(arrayStoredRecipes))
     await browser.close();
 }
